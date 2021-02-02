@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	booklet "github.com/leon0399/cardyo-pdf/services/booklet"
-	"github.com/signintech/gopdf"
 )
 
 // GenerateA5Booklet generate
@@ -14,23 +13,25 @@ import (
 func GenerateA5Booklet(c *gin.Context) {
 	theme := c.DefaultQuery("theme", "white")
 	url := c.Query("url")
+	_, download := c.GetQuery("download")
 
-	pdf := gopdf.GoPdf{}
-	defer pdf.Close()
+	pdf, err := booklet.GenerateBookletA5(theme, url)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 
-	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA5})
+	var disposition string
 
-	{
-		pdf.AddPage()
-
-		if err := booklet.GenerateBookletA5(&pdf, theme, url); err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
+	if download {
+		disposition = "attachment"
+	} else {
+		disposition = "inline"
 	}
 
 	c.Status(http.StatusOK)
 	c.Header("Content-Type", "application/pdf")
+	c.Header("Content-Disposition", disposition+"; filename=\"Cardyo-Booklet-A5.pdf\"")
 
 	if err := pdf.Write(c.Writer); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
