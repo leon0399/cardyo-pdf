@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  app: &app-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    restart: unless-stopped
+    tty: true
+    working_dir: /go/src/app
+    volumes:
+      - .:/go/src/app:cached
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
