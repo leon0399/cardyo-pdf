@@ -20,7 +20,7 @@ func main() {
 	{
 		booklet := api.Group("/booklet")
 
-		booklet.GET("/a5", controllers.GenerateA5Booklet)
+		booklet.GET("/a5", controllers.GenerateBookletA5Api)
 	}
 
 	router.Run()

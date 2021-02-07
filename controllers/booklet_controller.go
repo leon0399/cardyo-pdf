@@ -4,26 +4,35 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	booklet "github.com/leon0399/cardyo-pdf/services/booklet"
+	booklets "github.com/leon0399/cardyo-pdf/services/booklet"
 )
 
-// GenerateA5Booklet generate
+type Booklet struct {
+	Theme    string `form:"theme,default=white"`
+	URL      string `form:"url" binding:"required"`
+	Download bool   `form:"download,default=false"`
+}
+
+// GenerateBookletA5Api generate
 // @Failure 500 {object} string "internal server error"
 // @Router /booklet/a5 [get]
-func GenerateA5Booklet(c *gin.Context) {
-	theme := c.DefaultQuery("theme", "white")
-	url := c.Query("url")
-	_, download := c.GetQuery("download")
+func GenerateBookletA5Api(c *gin.Context) {
+	var booklet Booklet
 
-	pdf, err := booklet.GenerateBookletA5(theme, url)
+	if err := c.ShouldBind(&booklet); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		return
+	}
+
+	pdf, err := booklets.GenerateBookletA5(booklet.Theme, booklet.URL)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	var disposition string
 
-	if download {
+	if booklet.Download {
 		disposition = "attachment"
 	} else {
 		disposition = "inline"
