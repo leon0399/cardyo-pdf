@@ -1,0 +1,8 @@
+services:
+  app:
+    build:
+      target: development
+    ports:
+      - 8888:8080
+    volumes:
+      - .:/go/src/app:cached

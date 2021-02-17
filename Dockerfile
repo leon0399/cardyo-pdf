@@ -21,20 +21,22 @@ COPY . .
 RUN go build -o app .
 
 
+FROM alpine:latest as production
+
+RUN apk --no-cache add ca-certificates
+
+ENV GIN_MODE=release
+
+WORKDIR /root/
+COPY --from=builder /go/src/app/app .
+
+EXPOSE 8080
+
+CMD ["./app"]
+
+
 FROM builder as development
 
 RUN go get -u github.com/beego/bee
 
 CMD ["bee", "run"]
-
-
-FROM alpine:latest as production
-
-RUN apk --no-cache add ca-certificates
-
-WORKDIR /root/
-COPY --from=builder /build/app .
-
-EXPOSE 4000
-
-CMD ./app
