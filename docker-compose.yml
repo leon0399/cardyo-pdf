@@ -8,10 +8,3 @@ services:
       target: production
     restart: unless-stopped
     tty: true
-    working_dir: /go/src/app
-    networks:
-      - backend
-
-networks:
-  backend:
-    driver: bridge

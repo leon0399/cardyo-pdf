@@ -29,6 +29,7 @@ ENV GIN_MODE=release
 
 WORKDIR /root/
 COPY --from=builder /go/src/app/app .
+COPY ./assets/ ./assets/
 
 EXPOSE 8080
 
